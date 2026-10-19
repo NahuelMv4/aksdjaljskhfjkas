@@ -1,0 +1,183 @@
+{% extends "layout.html" %}
+{% block title %}Nuevo usuario{% endblock %}
+
+{% block content %}
+
+
+<div class="mb-4">
+  <h1 class="h3 mb-1 text-dark fw-bold">Nuevo usuario</h1>
+  <p class="text-muted mb-0">Completá los datos para registrar un nuevo usuario en el sistema.</p>
+</div>
+
+{% if errores.get('_general') %}
+  <div class="alert alert-danger shadow-sm" role="alert">{{ errores['_general'] }}</div>
+{% endif %}
+
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body p-4">
+    <form method="post" id="form-usuario" class="row g-3" novalidate>
+
+      <div class="col-12 col-md-6">
+        <label class="form-label fw-semibold small text-secondary" for="email">Correo electrónico: </label>
+        <input class="form-control {{ 'is-invalid' if errores.get('email') }}" type="email" id="email" name="email"
+               value="{{ valores.get('email', '') }}" maxlength="255" placeholder="ejemplo@unlp.edu.ar" required>
+        <div class="invalid-feedback" id="err-email">{{ errores.get('email', '') }}</div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label class="form-label fw-semibold small text-secondary" for="dni">DNI: </label>
+        <input class="form-control {{ 'is-invalid' if errores.get('dni') }}" id="dni" name="dni" inputmode="numeric"
+               pattern="\d{7,8}" maxlength="8" value="{{ valores.get('dni', '') }}" placeholder="Sin puntos ni espacios" required>
+        <div class="invalid-feedback" id="err-dni">{{ errores.get('dni', '') }}</div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label class="form-label fw-semibold small text-secondary" for="nombre">Nombre: </label>
+        <input class="form-control {{ 'is-invalid' if errores.get('nombre') }}" id="nombre" name="nombre"
+               minlength="2" maxlength="50" pattern="{{ nombre_re }}" value="{{ valores.get('nombre', '') }}" required>
+        <div class="invalid-feedback" id="err-nombre">{{ errores.get('nombre', '') }}</div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label class="form-label fw-semibold small text-secondary" for="apellido">Apellido: </label>
+        <input class="form-control {{ 'is-invalid' if errores.get('apellido') }}" id="apellido" name="apellido"
+               minlength="2" maxlength="50" pattern="{{ nombre_re }}" value="{{ valores.get('apellido', '') }}" required>
+        <div class="invalid-feedback" id="err-apellido">{{ errores.get('apellido', '') }}</div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label class="form-label fw-semibold small text-secondary" for="password">Contraseña: </label>
+        <input class="form-control {{ 'is-invalid' if errores.get('password') }}" type="password" id="password" name="password"
+               minlength="8" maxlength="72" autocomplete="new-password" required>
+        <div class="form-text">Mínimo 8 caracteres.</div>
+        <div class="invalid-feedback" id="err-password">{{ errores.get('password', '') }}</div>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label class="form-label fw-semibold small text-secondary" for="password_confirm">Confirmar contraseña: </label>
+        <input class="form-control {{ 'is-invalid' if errores.get('password_confirm') }}" type="password" id="password_confirm" name="password_confirm"
+               minlength="8" maxlength="72" autocomplete="new-password" required>
+        <div class="invalid-feedback" id="err-password_confirm">{{ errores.get('password_confirm', '') }}</div>
+
+      <div class="col-12 col-md-5">
+        <label class="form-label fw-semibold small text-secondary" for="rol_id">Rol: </label>
+        <select class="form-select {{ 'is-invalid' if errores.get('rol_id') }}" id="rol_id" name="rol_id" required>
+          <option value="">Seleccionar…</option>
+          {% for r in roles %}
+            {% set nombre_rol = r.nombre.value if r.nombre.value is defined else r.nombre %}
+            <option value="{{ r.id }}" data-jefe="{{ '1' if nombre_rol == 'Jefe de Servicio' else '0' }}"
+            {{ 'selected' if valores.get('rol_id')|string == r.id|string }}>{{ nombre_rol }}</option>
+          {% endfor %}
+        </select>
+        <div class="invalid-feedback" id="err-rol_id">{{ errores.get('rol_id', '') }}</div>
+      </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-semibold small text-secondary" for="sector_id">Sector: </label>
+          <select class="form-select {{ 'is-invalid' if errores.get('sector_id') }}" id="sector_id" name="sector_id" required>
+            <option value="">Seleccionar…</option>
+            {% for s in sectores %}
+              <option value="{{ s.id }}" {{ 'selected' if valores.get('sector_id')|string == s.id|string }}>{{ s.nombre }}</option>
+            {% endfor %}
+          </select>
+          <div class="invalid-feedback" id="err-sector_id">{{ errores.get('sector_id', '') }}</div>
+        </div>
+
+      <div class="col-12 d-flex gap-2 pt-3">
+        <button class="btn btn-primary px-4 shadow-sm" type="submit">Crear usuario</button>
+        <a class="btn btn-outline-secondary px-4" href="{{ url_for('usuarios.listar') }}">Cancelar</a>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var form = document.getElementById('form-usuario');
+    var campos = ['email', 'dni', 'nombre', 'apellido', 'password', 'password_confirm', 'rol_id', 'sector_id'];
+    var el = {};
+    campos.forEach(function (id) { el[id] = document.getElementById(id); });
+    var grupoSector = document.getElementById('grupo-sector');
+
+    var EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+    var NOMBRE_RE = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?:[ '\-][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)*$/;
+    var PASSWORD_MIN = 8;
+
+    function validarNombre(valor, etiqueta) {
+      if (!valor) { return etiqueta + ' es obligatorio.'; }
+      if (valor.length < 2 || valor.length > 50) { return etiqueta + ' debe tener entre 2 y 50 caracteres.'; }
+      if (!NOMBRE_RE.test(valor)) { return etiqueta + ' solo puede contener letras, espacios, apóstrofes y guiones.'; }
+      return '';
+    }
+
+    var reglas = {
+      email: function (v) {
+        v = v.trim();
+        if (!v) { return 'El correo electrónico es obligatorio.'; }
+        if (v.length > 255 || !EMAIL_RE.test(v)) { return 'Ingresá un correo válido (ej: nombre@dominio.com).'; }
+        return '';
+      },
+      dni: function (v) {
+        v = v.trim();
+        if (!v) { return 'El DNI es obligatorio.'; }
+        if (!/^\d{7,8}$/.test(v)) { return 'El DNI debe tener 7 u 8 dígitos, sin puntos.'; }
+        return '';
+      },
+      nombre: function (v) { return validarNombre(v.trim(), 'El nombre'); },
+      apellido: function (v) { return validarNombre(v.trim(), 'El apellido'); },
+      password: function (v) {
+        if (!v) { return 'La contraseña es obligatoria.'; }
+        if (v.length < PASSWORD_MIN) { return 'La contraseña debe tener al menos ' + PASSWORD_MIN + ' caracteres.'; }
+        if (v.length > 72) { return 'La contraseña es demasiado larga.'; }
+        return '';
+      },
+      password_confirm: function (v) {
+        if (!v) { return 'Confirmá la contraseña.'; }
+        if (v !== el.password.value) { return 'Las contraseñas no coinciden.'; }
+        return '';
+      },
+      rol_id: function (v) { return v ? '' : 'Seleccioná un rol.'; },
+      sector_id: function (v) {
+        return !v ? 'Seleccioná un sector obligatorio.' : '';
+      }
+    };
+
+    function mostrar(id, mensaje) {
+      el[id].classList.toggle('is-invalid', mensaje !== '');
+      document.getElementById('err-' + id).textContent = mensaje;
+    }
+
+    function validarCampo(id) {
+      var mensaje = reglas[id](el[id].value);
+      mostrar(id, mensaje);
+      return mensaje === '';
+    }
+
+    campos.forEach(function (id) {
+      el[id].addEventListener('blur', function () { if (el[id].value !== '' || el[id].classList.contains('is-invalid')) { validarCampo(id); } });
+      el[id].addEventListener('input', function () { if (el[id].classList.contains('is-invalid')) { validarCampo(id); } });
+    });
+    el.password.addEventListener('input', function () {
+      if (el.password_confirm.value !== '') { validarCampo('password_confirm'); }
+    });
+    el.rol_id.addEventListener('change', function () { 
+      alternarSector(); 
+      validarCampo('rol_id'); 
+    });
+
+    form.addEventListener('submit', function (e) {
+      var primerInvalido = null;
+      campos.forEach(function (id) {
+        if (id === 'sector_id' && !esJefe()) { return; }
+
+        if (!validarCampo(id) && primerInvalido === null) { primerInvalido = el[id]; }
+      });
+      if (primerInvalido !== null) {
+        e.preventDefault();          
+        primerInvalido.focus();
+      }
+    });
+  })();
+</script>
+{% endblock %}

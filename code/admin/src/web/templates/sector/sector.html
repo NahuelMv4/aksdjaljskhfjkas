@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Gestión de Servicios
+{% endblock %}
+
+{% block content %}
+    <div class="seccion-header">
+        <h2>Listado de Servicios (Sectores)</h2>
+        <a href="{{ url_for('sectores.crear') }}" class="btn btn-primario">+ Nuevo Sector</a>
+    </div>
+
+    <form method="get" action="{{ url_for('sectores.listar') }}" class="filtros">
+        <input type="text" name="nombre" placeholder="Buscar por nombre"
+               value="{{ filtros.nombre }}">
+
+        <select name="estado">
+            <option value="" {{ 'selected' if filtros.estado == '' }}>Todos</option>
+            <option value="activo" {{ 'selected' if filtros.estado == 'activo' }}>Activos</option>
+            <option value="inactivo" {{ 'selected' if filtros.estado == 'inactivo' }}>Inactivos</option>
+        </select>
+
+        <select name="orden">
+            <option value="nombre" {{ 'selected' if filtros.orden == 'nombre' }}>Ordenar por nombre</option>
+            <option value="creado_en" {{ 'selected' if filtros.orden == 'creado_en' }}>Ordenar por fecha de creación</option>
+        </select>
+
+        <select name="dir">
+            <option value="asc" {{ 'selected' if filtros.dir == 'asc' }}>Ascendente</option>
+            <option value="desc" {{ 'selected' if filtros.dir == 'desc' }}>Descendente</option>
+        </select>
+
+        <button type="submit" class="btn btn-primario">Buscar</button>
+        <a href="{{ url_for('sectores.listar') }}" class="btn">Limpiar</a>
+    </form>
+
+    <div class="tabla-contenedor">
+        <table class="tabla-datos">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sector in sectores %}
+                    <tr>
+                        <td>{{ sector.id }}</td>
+                        <td>{{ sector.nombre }}</td>
+                        <td>{{ sector.descripcion }}</td>
+                        <td>
+                            {% if sector.activo %}
+                                <span class="badge activo">Activo</span>
+                            {% else %}
+                                <span class="badge inactivo">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <!-- NUEVO: botón de editar -->
+                            <a href="{{ url_for('sectores.editar', sector_id=sector.id) }}" class="btn">Editar</a>
+
+                            {% if sector.activo %}
+                                <form method="post"
+                                      action="{{ url_for('sectores.desactivar', sector_id=sector.id) }}"
+                                      onsubmit="return confirm('¿Desactivar el sector {{ sector.nombre }}?');">
+                                    <button type="submit" class="btn btn-peligro">Desactivar</button>
+                                </form>
+                            {% else %}
+                                <form method="post"
+                                      action="{{ url_for('sectores.reactivar', sector_id=sector.id) }}">
+                                    <button type="submit" class="btn btn-primario">Reactivar</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="vacio">No hay registros de servicios disponibles.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <nav class="paginador">
+        {% if pagina > 1 %}
+            <a href="{{ url_for('sectores.listar', pagina=pagina - 1, **filtros) }}" class="btn">Anterior</a>
+        {% endif %}
+
+        <span>Página {{ pagina }} de {{ total_paginas }}</span>
+
+        {% if pagina < total_paginas %}
+            <a href="{{ url_for('sectores.listar', pagina=pagina + 1, **filtros) }}" class="btn">Siguiente</a>
+        {% endif %}
+    </nav>
+{% endblock %}

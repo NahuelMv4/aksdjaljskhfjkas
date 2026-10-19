@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Inicio{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+    <header>
+        <div class="marca">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo de aplicación">
+            <span>Servicio de alimentación</span>
+        </div>
+
+        <div class="user-info">
+            {# Si sesion iniciada mostrar datos usuario #} 
+            {% if is_authenticated(session) %}
+                Sesion de <strong>{{ session.get('nombre') }} {{ session.get('apellido') }}</strong>             
+            {% else %}
+            {# Si sesion no iniciada boton ingreso #}
+                <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+            {% endif %}
+        </div>
+
+        {# Opciones cuenta, oculta si sesion no iniciada #}
+        {% if is_authenticated(session) %}
+            <details>
+                <summary>Cuenta</summary>
+                <div class="menu-cuenta">
+                    <a href="#">Ver Perfil</a>
+                    <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+                </div>
+            </details>
+        {% endif %}
+    </header>
+
+    <div class="contenedor-principal">
+
+        {# Menu gestion #}
+        {% if is_authenticated(session) %}
+            <nav>
+                <h2>Gestion</h2>
+                <ul>
+                    {#  TODO (cada modulo): reemplazar el "#" por {{ url_for('<blueprint>.<funcion>') }} 
+                                            y ajustar el nombre del blueprint en la comparacion con request.blueprint #}
+                    <li><a href="{{ url_for('usuarios.listar') }}"{% if request.blueprint == 'usuarios' %} aria-current="page"{% endif %}>Usuarios</a></li>
+                    <li><a href="{{ url_for('sectores.listar') }}"{% if request.blueprint == 'sectores' %} aria-current="page"{% endif %}>Sectores</a></li>
+                    <li><a href="{{ url_for('priv_personal.listar') }}"{% if request.blueprint == 'priv_personal' %} aria-current="page"{% endif %}>Personal</a></li>
+                    <li><a href="#"{% if request.blueprint == 'tipos_menu_web' %} aria-current="page"{% endif %}>Tipos de menú</a></li>
+                    <li><a href="#"{% if request.blueprint == 'config_web' %} aria-current="page"{% endif %}>Configuración</a></li>
+                </ul>
+            </nav>
+        {% endif %}
+
+        <main>
+            {# Mensajes estilizados por categoria #}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+
+    </div>
+
+    <footer>
+        <p>Servicio de alimentacion</p>
+    </footer>
+
+</body>
+</html>

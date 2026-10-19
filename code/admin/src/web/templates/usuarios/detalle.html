@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block title %}{{ usuario.nombre }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">{{ usuario.nombre }} {{ usuario.apellido }}</h1>
+  <a class="btn btn-outline-secondary" href="{{ url_for('usuarios.listar') }}">Volver al listado</a>
+</div>
+ 
+<div class="container px-0">
+  <div class="d-flex mb-2">
+    <span class="fw-semibold text-secondary" style="width: 180px; min-width: 180px;">Correo electrónico:</span>
+    <span>{{ usuario.email }}</span>
+  </div>
+  <div class="d-flex mb-2">
+    <span class="fw-semibold text-secondary" style="width: 180px; min-width: 180px;">DNI:</span>
+    <span>{{ usuario.dni }}</span>
+  </div>
+  <div class="d-flex mb-2">
+    <span class="fw-semibold text-secondary" style="width: 180px; min-width: 180px;">Rol:</span>
+    <span>{{ usuario.rol.nombre.value }}</span>
+  </div>
+  <div class="d-flex mb-2">
+    <span class="fw-semibold text-secondary" style="width: 180px; min-width: 180px;">Sector:</span>
+    <span>{{ usuario.sector.nombre if usuario.sector else '—' }}</span>
+  </div>
+  <div class="d-flex mb-2">
+    <span class="fw-semibold text-secondary" style="width: 180px; min-width: 180px;">Estado:</span>
+    <span>
+      {% if usuario.activo %}
+        <span class="badge text-bg-success">Activo</span>
+      {% else %}
+        <span class="badge text-bg-secondary">Bloqueado</span>
+      {% endif %}
+    </span>
+  </div>
+
+  <div class="d-flex mb-2">
+    <span class="fw-semibold text-secondary" style="width: 180px; min-width: 180px;">Fecha de creación:</span>
+    <span>{{ usuario.creado_en.strftime('%d/%m/%Y %H:%M') if usuario.creado_en }}</span>
+  </div>
+
+  <div class="d-flex mb-2">
+    <span class="fw-semibold text-secondary" style="width: 180px; min-width: 180px;">Última modificación:</span>
+    <span>{{ usuario.actualizado_en.strftime('%d/%m/%Y %H:%M') if usuario.actualizado_en }}</span>
+  </div>
+
+</div>
+
+<div class="d-flex flex-wrap mb-4" style="align-items: center;">
+  {% if usuario.rol and usuario.rol.nombre.value != 'Administrador' %}
+    {% if usuario.activo %}
+      <form method="post" action="{{ url_for('usuarios.bloquear', usuario_id=usuario.id) }}" style="margin-right: 15px;"
+            onsubmit="return confirm('¿Bloquear a este usuario? No podrá iniciar sesión.');">
+        <button class="btn btn-warning" type="submit">Bloquear</button>
+      </form>
+    {% else %}
+      <form method="post" action="{{ url_for('usuarios.desbloquear', usuario_id=usuario.id) }}" style="margin-right: 15px;">
+        <button class="btn btn-success" type="submit">Desbloquear</button>
+      </form>
+    {% endif %}
+    <form method="post" action="{{ url_for('usuarios.eliminar', usuario_id=usuario.id) }}"
+          onsubmit="return confirm('¿Eliminar definitivamente a este usuario?');">
+      <button class="btn btn-outline-danger" type="submit">Eliminar</button>
+    </form>
+</div>
+<script>
+  (function () {
+    var rol = document.getElementById('rol_id'), sector = document.getElementById('sector_id'),
+        grupo = document.getElementById('grupo-sector');
+    function alternar() {
+      var esJefe = rol.options[rol.selectedIndex].dataset.jefe === '1';
+      grupo.hidden = !esJefe; sector.required = esJefe; if (!esJefe) { sector.value = ''; }
+    }
+    rol.addEventListener('change', alternar); alternar();
+  })();
+</script>
+{% endif %}
+{% endblock %}

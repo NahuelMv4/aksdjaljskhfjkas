@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Gestión de Personal
+{% endblock %}
+
+{% block content %}
+    <div class="seccion-header">
+        <h2>Listado de Personal</h2>
+        <!-- Botón para ir al formulario de creación -->
+        <a href="{{ url_for('priv_personal.crear') }}" class="btn btn-primario">+ Nuevo Personal</a>
+    </div>
+
+    <div class="tabla-contenedor">
+        <table class="tabla-datos">
+            <thead>
+                <tr>
+                    <th>DNI</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for persona in personal %}
+                    <tr>
+                        <td>{{ persona.dni }}</td>
+                        <td>{{ persona.nombre }}</td>
+                        <td>{{ persona.apellido }}</td>
+                        <td>
+                            {% if persona.activo %}
+                                <span class="badge activo">Activo</span>
+                            {% else %}
+                                <span class="badge inactivo">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td class="acciones-celda">
+                            <a href="{{ url_for('priv_personal.editar', id=persona.id) }}" class="btn-accion btn-editar">Editar</a>
+
+                            <form action="{{ url_for('priv_personal.eliminar', id=persona.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar a este miembro del personal?');">
+                                <button type="submit" class="btn-accion btn-eliminar">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="vacio">No hay registros de personal disponibles.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

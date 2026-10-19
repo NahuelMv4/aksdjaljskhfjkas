@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Editar Personal
+{% endblock %}
+
+{% block content %}
+    <div class="form-contenedor">
+        <h2>Editar Miembro del Personal</h2>
+
+        <form method="POST" class="formulario-estandar">
+            <div class="form-grupo">
+                <label for="dni">DNI:</label>
+                <input type="text" id="dni" name="dni" value="{{ persona.dni }}" required>
+            </div>
+
+            <div class="form-grupo">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" value="{{ persona.nombre }}" required>
+            </div>
+
+            <div class="form-grupo">
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" name="apellido" value="{{ persona.apellido }}" required>
+            </div>
+
+            <div class="form-grupo">
+                <label for="tipo_personal_id">Tipo de Personal:</label>
+                <select id="tipo_personal_id" name="tipo_personal_id" required>
+                    {% for tp in tipos_personal %}
+                        <option value="{{ tp.id }}" {% if persona.tipo_personal_id == tp.id %}selected{% endif %}>
+                            {{ tp.nombre.value if tp.nombre.value is defined else tp.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-grupo">
+                <label for="sector_id">Sector / Servicio:</label>
+                <select id="sector_id" name="sector_id">
+                    <option value="">Sin sector asignado</option>
+                    {% for sector in sectores %}
+                        <option value="{{ sector.id }}" {% if persona.sector_id == sector.id %}selected{% endif %}>
+                            {{ sector.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-grupo">
+                <label for="tipo_menu_id">Tipo de Menú:</label>
+                <select id="tipo_menu_id" name="tipo_menu_id" required>
+                    {% for tm in tipos_menu %}
+                        <option value="{{ tm.id }}" {% if persona.tipo_menu_id == tm.id %}selected{% endif %}>
+                            {{ tm.nombre.value if tm.nombre.value is defined else tm.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-botones">
+                <button type="submit" class="btn btn-primario">Actualizar Cambios</button>
+                <a href="{{ url_for('priv_personal.listar') }}" class="btn btn-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

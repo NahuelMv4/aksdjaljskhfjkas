@@ -1,0 +1,160 @@
+{% extends "layout.html" %}
+{% block title %}Usuarios{% endblock %}
+
+{% block content %}
+{% macro ordenar(col, texto) %}
+  {% set nuevo = 'desc' if (args.orden == col and args.sentido == 'asc') else 'asc' %}
+  <a class="text-decoration-none text-reset fw-semibold"
+     href="{{ url_for('usuarios.listar', **dict(args, orden=col, sentido=nuevo, pagina=1)) }}">
+     {{ texto }}
+     {% if args.orden == col %}
+       <span class="text-primary">{{ '▲' if args.sentido == 'asc' else '▼' }}</span>
+     {% endif %}
+  </a>
+{% endmacro %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 mb-1 text-dark fw-bold">Gestión de Usuarios</h1>
+    <p class="text-muted mb-0">Administrá los accesos, roles y sectores del personal.</p>
+  </div>
+  <a class="btn btn-primary shadow-sm px-3" href="{{ url_for('usuarios.nuevo') }}">
+    <i class="bi bi-plus-lg me-1"></i>Nuevo usuario
+  </a>
+</div>
+
+<div class="card shadow-sm border-0 mb-4 bg-light">
+  <div class="card-body">
+    <form method="get" class="row g-3 justify-content-center align-items-end" role="search" aria-label="Filtros de usuarios">
+      <div class="col-12 col-md-5">
+        <label class="form-label fw-semibold small text-secondary" for="f-email">Correo electrónico</label>
+        <input class="form-control" id="f-email" name="email" value="{{ filtros.get('email', '') }}" maxlength="100" placeholder="Ej: usuario@UNLP...">
+      </div>
+      <div class="col-12 col-md-5">
+        <label class="form-label fw-semibold small text-secondary" for="f-q">Nombre o apellido</label>
+        <input class="form-control" id="f-q" name="q" value="{{ filtros.get('q', '') }}" maxlength="100" placeholder="Buscar por nombre...">
+      </div>
+      <div class="col-12 col-md-5">
+        <label class="form-label fw-semibold small text-secondary" for="f-dni">DNI</label>
+        <input class="form-control" id="f-dni" name="dni" value="{{ filtros.get('dni', '') }}" inputmode="numeric" maxlength="8" placeholder="Número de DNI">
+      </div>
+      <div class="col-12 col-md-5">
+        <label class="form-label fw-semibold small text-secondary" for="f-activo">Estado</label>
+        <select class="form-select" id="f-activo" name="activo">
+          <option value="">Todos</option>
+          <option value="1" {{ 'selected' if filtros.get('activo') is true }}>Activo</option>
+          <option value="0" {{ 'selected' if filtros.get('activo') is false }}>Bloqueado</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-5">
+        <label class="form-label fw-semibold small text-secondary" for="f-rol">Rol</label>
+        <select class="form-select" id="f-rol" name="rol_id">
+          <option value="">Todos</option>
+          {% for r in roles %}<option value="{{ r.id }}">{{ r.nombre.value }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-md-5">
+        <label class="form-label fw-semibold small text-secondary" for="f-sector">Sector</label>
+        <select class="form-select" id="f-sector" name="sector_id">
+          <option value="">Todos</option>
+          {% for sector in sectores %}
+            <option value="{{ sector.id }}" {% if paginacion.items.sector_id == sector.id %}selected{% endif %}>
+              {{ sector.nombre }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <input type="hidden" name="orden" value="{{ orden }}">
+      <input type="hidden" name="sentido" value="{{ sentido }}">
+      
+      <div class="col-12 col-md-3 d-flex gap-2">
+        <button class="btn btn-primary w-100 shadow-sm" type="submit">Filtrar</button>
+        <a href="{{ url_for('usuarios.listar') }}" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center text-decoration-none">Limpiar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light text-uppercase fs-7">
+        <tr>
+          <th class="ps-3">{{ ordenar('apellido', 'Apellido y nombre') }}</th>
+          <th>{{ ordenar('email', 'Correo') }}</th>
+          <th>DNI</th>
+          <th>Rol</th>
+          <th>Sector</th>
+          <th>Estado</th>
+          <th>{{ ordenar('creado_en', 'Creación') }}</th>
+          <th class="text-end pe-3">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in paginacion.items %}
+          {% if u.id != session.get('user') %} 
+          <tr>
+            <td class="ps-3 fw-medium text-dark">{{ u.nombre }} {{ u.apellido }}</td>
+            <td class="text-muted">{{ u.email }}</td>
+            <td>{{ u.dni }}</td>
+            <td><span class="badge bg-light text-dark border">{{ u.rol.nombre.value }}</span></td>
+            <td>{{ u.sector.nombre if u.sector else '—' }}</td>
+            <td>
+              {% if u.activo %}
+                <span class="badge rounded-pill text-bg-success px-2 py-1">Activo</span>
+              {% else %}
+                <span class="badge rounded-pill text-bg-secondary px-2 py-1">Bloqueado</span>
+              {% endif %}
+            </td>
+            <td class="text-muted small">{{ u.creado_en.strftime('%d/%m/%Y') if u.creado_en else '—' }}</td>
+            <td class="text-end pe-3 text-nowrap">
+              <a href="{{ url_for('usuarios.detalle', usuario_id=u.id) }}" class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                Ver
+              </a>
+              {% if u.rol and u.rol.nombre.value != 'Administrador' %}
+              <a href="{{ url_for('usuarios.editar', usuario_id=u.id) }}" class="btn btn-sm btn-outline-secondary" title="Editar usuario">
+                Editar
+              </a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endif %}
+          {% else %}
+          <tr>
+            <td colspan="8" class="text-center py-5 text-muted">
+              <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+              No se encontraron usuarios que coincidan con los filtros.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mb-4">
+
+
+  {% if paginacion.pages > 1 %}
+  <nav aria-label="Paginación de usuarios">
+    <ul class="pagination pagination-sm mb-0 shadow-sm">
+      <li class="page-item {{ 'disabled' if not paginacion.has_prev }}">
+        <a class="page-link" href="{{ url_for('usuarios.listar', **dict(args, pagina=paginacion.prev_num or 1)) }}">Anterior</a>
+      </li>
+      {% for n in paginacion.iter_pages() %}
+        {% if n %}
+          <li class="page-item {{ 'active' if n == paginacion.page }}">
+            <a class="page-link" href="{{ url_for('usuarios.listar', **dict(args, pagina=n)) }}">{{ n }}</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">…</span></li>
+        {% endif %}
+      {% endfor %}
+      <li class="page-item {{ 'disabled' if not paginacion.has_next }}">
+        <a class="page-link" href="{{ url_for('usuarios.listar', **dict(args, pagina=paginacion.next_num or paginacion.page)) }}">Siguiente</a>
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

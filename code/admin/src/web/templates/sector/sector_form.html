@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% block title %}
+{{ "Editar Sector" if sector else "Nuevo Sector" }}
+{% endblock %}
+
+{% block content %}
+    <div class="seccion-header">
+        <h2>{{ "Editar Sector" if sector else "Nuevo Sector" }}</h2>
+    </div>
+
+    {% for categoria, mensaje in get_flashed_messages(with_categories=true) %}
+        <p class="mensaje {{ categoria }}">{{ mensaje }}</p>
+    {% endfor %}
+
+    <form method="post"
+          action="{{ url_for('sectores.actualizar', sector_id=sector.id) if sector else url_for('sectores.crear') }}"
+          class="formulario">
+        <div class="campo">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" name="nombre" required maxlength="100"
+                   value="{{ sector.nombre if sector else '' }}">
+        </div>
+
+        <div class="campo">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" name="descripcion" rows="4" maxlength="255">{{ sector.descripcion if sector else '' }}</textarea>
+        </div>
+
+        <div class="acciones">
+            <button type="submit" class="btn btn-primario">Guardar</button>
+            <a href="{{ url_for('sectores.listar') }}" class="btn">Cancelar</a>
+        </div>
+    </form>
+{% endblock %}

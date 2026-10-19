@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Editar Personal
+{% endblock %}
+
+{% block content %}
+    <div class="form-contenedor">
+        <h2>Editar Usuario</h2>
+
+        {# Muestra de errores generales si los hay #}
+        {% if errores and errores.get('_general') %}
+            <div class="alert alert-danger">{{ errores.get('_general') }}</div>
+        {% endif %}
+
+        <form method="POST" class="formulario-estandar">
+            
+            <div class="form-grupo">
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" id="email" name="email" 
+                       value="{{ valores.get('email') if valores else usuario.email }}" required>
+                {% if errores and errores.get('email') %}
+                    <span class="error-texto">{{ errores.get('email') }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-grupo">
+                <label for="dni">DNI:</label>
+                <input type="text" id="dni" name="dni" 
+                       value="{{ valores.get('dni') if valores else usuario.dni }}"
+                       maxlength="8" 
+                        pattern="[0-9]{7,8}"
+                        required>
+                {% if errores and errores.get('dni') %}
+                    <span class="error-texto">{{ errores.get('dni') }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-grupo">
+                <label for="nombre">Nombre: </label>
+                <input type="text" id="nombre" name="nombre" 
+                       value="{{ valores.get('nombre') if valores else usuario.nombre }}" required>
+                {% if errores and errores.get('nombre') %}
+                    <span class="error-texto">{{ errores.get('nombre') }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-grupo">
+                <label for="apellido">Apellido: </label>
+                <input type="text" id="apellido" name="apellido" 
+                       value="{{ valores.get('apellido') if valores else usuario.apellido }}" required>
+                {% if errores and errores.get('apellido') %}
+                    <span class="error-texto">{{ errores.get('apellido') }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-grupo">
+                <label for="contrasenia">Contraseña: </label>
+                <input type="password" id="contrasenia" name="contrasenia" placeholder="Nueva contraseña" minlength="8">
+                {% if errores and errores.get('contrasenia') %}
+                    <span class="error-texto">{{ errores.get('contrasenia') }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-grupo">
+                <label for="sector_id">Sector: </label>
+                <select id="sector_id" name="sector_id" required>
+                    <option value="">Seleccionar…</option>
+                    {% for sector in sectores %}
+                        <option value="{{ sector.id }}" 
+                            {{ 'selected' if (valores and valores.get('sector_id')|string == sector.id|string) or (not valores and usuario.sector_id == sector.id) }}>
+                            {{ sector.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if errores and errores.get('sector_id') %}
+                    <span class="error-texto">{{ errores.get('sector_id') }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-grupo">
+                <label for="f-rol">Rol: </label>
+                <select class="form-select" id="f-rol" name="rol_id" required>
+                    <option value="">Seleccionar…</option>
+                    {% for r in roles %}
+                        <option value="{{ r.id }}" 
+                            {{ 'selected' if (valores and valores.get('rol_id')|string == r.id|string) or (not valores and usuario.rol_id == r.id) }}>
+                            {{ r.nombre.value if r.nombre.value is defined else r.nombre }}
+                        </option>
+                    {% endfor %}
+                </select>
+                {% if errores and errores.get('rol_id') %}
+                    <span class="error-texto">{{ errores.get('rol_id') }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-botones">
+                <button type="submit" class="btn btn-primario">Actualizar Cambios</button>
+                <a href="{{ url_for('usuarios.listar') }}" class="btn btn-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

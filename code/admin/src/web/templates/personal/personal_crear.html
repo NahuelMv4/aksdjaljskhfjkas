@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Registrar Nuevo Personal
+{% endblock %}
+
+{% block content %}
+    <div class="form-contenedor">
+        <h2>Registrar Nuevo Miembro del Personal</h2>
+
+        <form method="POST" class="formulario-estandar">
+            <div class="form-grupo">
+                <label for="dni">DNI:</label>
+                <input type="text" id="dni" name="dni" required placeholder="Ej: 37825229">
+            </div>
+
+            <div class="form-grupo">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required placeholder="Ej: Brian">
+            </div>
+
+            <div class="form-grupo">
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" name="apellido" required placeholder="Ej: Perez">
+            </div>
+
+            <div class="form-grupo">
+                <label for="tipo_personal_id">Tipo de Personal:</label>
+                <select id="tipo_personal_id" name="tipo_personal_id" required>
+                    <option value="" disabled selected>Seleccione un tipo...</option>
+                    {% for tp in tipos_personal %}
+                        <option value="{{ tp.id }}">{{ tp.nombre.value if tp.nombre.value is defined else tp.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-grupo">
+                <label for="sector_id">Sector / Servicio:</label>
+                <select id="sector_id" name="sector_id">
+                    <option value="">Sin sector asignado (Opcional)</option>
+                    {% for sector in sectores %}
+                        <option value="{{ sector.id }}">{{ sector.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-grupo">
+                <label for="tipo_menu_id">Tipo de Menú:</label>
+                <select id="tipo_menu_id" name="tipo_menu_id" required>
+                    <option value="" disabled selected>Seleccione un menú...</option>
+                    {% for tm in tipos_menu %}
+                        <option value="{{ tm.id }}">{{ tm.nombre.value if tm.nombre.value is defined else tm.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-botones">
+                <button type="submit" class="btn btn-primario">Guardar Registro</button>
+                <a href="{{ url_for('priv_personal.listar') }}" class="btn btn-secundario">Cancelar</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -1,0 +1,432 @@
+/* ==========================================================================body
+   Servicio de Alimentación - Aplicación privada
+   Enfoque MOBILE FIRST
+   ========================================================================== */
+
+/* ---------- Variables  ---------- */
+:root {
+    /* Colores del logo */
+    --verde: #579a1c;          
+    --verde-texto: #3d7a12;    
+    --azul: #0068a8;           
+    --azul-oscuro: #0b4f80;    
+    --azul-claro: #e4eff7;     
+    --acero: #304858;          
+
+    /* Neutros */
+    --tinta: #1f2a33;
+    --tinta-suave: #5b6e7c;
+    --fondo: #f3f6f7;
+    --superficie: #ffffff;
+    --borde: #d3dadd;
+
+    --alto-tactil: 44px;       
+}
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;    
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;    
+    font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+    color: var(--tinta);
+    background-color: var(--fondo);
+    overflow-y: auto;
+}
+
+/* Foco visible para quien navega con teclado */
+a:focus-visible,
+summary:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 3px solid var(--azul);
+    outline-offset: 2px;
+}
+
+/* ---------- Header ---------- */
+header {
+    display: flex;
+    flex-wrap: wrap;           /* en pantallas angostas los elementos pasan a otra fila */
+    align-items: center;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 1rem;
+    color: var(--acero);
+    background-color: var(--superficie);
+    border-bottom: 4px solid var(--verde);
+}
+
+header .marca {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-right: auto;        /* empuja usuario y cuenta hacia la derecha */
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+header .marca img {
+    height: 48px;
+    width: auto;
+}
+
+header .user-info {
+    font-size: 0.9rem;
+    color: var(--tinta-suave);
+}
+
+header .user-info strong {
+    color: var(--acero);
+}
+
+/* Enlace "Iniciar sesión" con aspecto de botón */
+header .user-info a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--alto-tactil);
+    padding: 0 1rem;
+    color: var(--azul);
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid var(--azul);
+    border-radius: 6px;
+}
+
+header .user-info a:hover {
+    background-color: var(--azul-claro);
+}
+
+/* ---------- Menú de cuenta (details/summary) ---------- */
+header details {
+    position: relative;        
+}
+
+header summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: var(--alto-tactil);
+    padding: 0 1rem;
+    cursor: pointer;
+    list-style: none;          
+    user-select: none;
+    color: var(--acero);
+    font-weight: 600;
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    transition: background-color 0.15s;
+}
+
+header summary::-webkit-details-marker {
+    display: none;
+}
+
+header summary::after {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.15s;
+}
+
+header details[open] summary::after {
+    transform: translateY(2px) rotate(-135deg);
+}
+
+header summary:hover,
+header details[open] summary {
+    background-color: var(--azul-claro);
+    border-color: var(--azul);
+}
+
+header .menu-cuenta {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 20;
+    min-width: 12rem;
+    overflow: hidden;
+    background-color: var(--superficie);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(30, 50, 65, 0.18);
+}
+
+header .menu-cuenta a {
+    display: block;
+    padding: 0.85rem 1rem;
+    color: var(--tinta);
+    text-decoration: none;
+}
+
+header .menu-cuenta a:hover {
+    background-color: var(--azul-claro);
+}
+
+/* ---------- Contenedor del menú + contenido ---------- */
+.contenedor-principal {
+    flex: 1;                   
+    display: flex;
+    flex-direction: column;    
+}
+
+/* ---------- Menú de gestión (versión teléfono: barra horizontal) ---------- */
+nav {
+    background-color: var(--superficie);
+    border-bottom: 1px solid var(--borde);
+}
+
+nav h2 {
+    margin: 0;
+    padding: 0.75rem 1rem 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--acero);
+}
+
+nav ul {
+    display: flex;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0.25rem 0.5rem 0.5rem;
+    list-style: none;
+    overflow-x: auto;          /* si no entran todos, se desliza hacia el costado */
+}
+
+nav a {
+    display: flex;
+    align-items: center;
+    min-height: var(--alto-tactil);
+    padding: 0 0.9rem;
+    white-space: nowrap;
+    color: var(--tinta);
+    text-decoration: none;
+    border-radius: 6px;
+    border-bottom: 3px solid transparent;
+    transition: background-color 0.15s;
+}
+
+nav a:hover {
+    background-color: var(--azul-claro);
+}
+
+/* Sección activa: usar class="activo" o aria-current="page" en el enlace */
+nav a.activo,
+nav a[aria-current="page"] {
+    background-color: var(--azul-claro);
+    color: var(--azul-oscuro);
+    font-weight: 600;
+    border-bottom-color: var(--verde);
+}
+
+/* ---------- Contenido principal ---------- */
+main {
+    flex: 1;
+    min-width: 0;              /* evita que tablas anchas desborden el layout */
+    padding: 1rem;
+}
+
+main h1 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: var(--acero);
+}
+
+/* ---------- Mensajes (flash) ---------- */
+.flashes {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0 0 1.25rem;
+    padding: 0;
+    list-style: none;
+}
+
+.flashes li {
+    padding: 0.85rem 1rem;
+    border: 1px solid;
+    border-left-width: 4px;
+    border-radius: 6px;
+}
+
+.flashes .info {
+    background-color: var(--azul-claro);
+    border-color: var(--azul);
+    color: var(--azul-oscuro);
+}
+
+.flashes .success {
+    background-color: #eaf4df;
+    border-color: var(--verde);
+    color: #2f5a0c;
+}
+
+.flashes .warning {
+    background-color: #fdf3dc;
+    border-color: #d69a1e;
+    color: #6b4a08;
+}
+
+.flashes .danger {
+    background-color: #fbe5e3;
+    border-color: #c0392b;
+    color: #7a1f17;
+}
+
+/* ---------- Elementos comunes para los módulos ---------- */
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    min-height: var(--alto-tactil);
+    padding: 0 1.25rem;
+    color: #fff;
+    background-color: var(--azul);
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: var(--azul-oscuro);
+}
+
+input,
+select {
+    min-height: var(--alto-tactil);
+    padding: 0 0.75rem;
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+    background-color: var(--superficie);
+}
+
+.formulario {
+    max-width: 24rem;
+    margin: 0 auto;
+    padding: 1.5rem;
+    background-color: var(--superficie);
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+}
+
+.formulario label {
+    display: block;
+    margin: 1rem 0 0.25rem;
+    font-weight: 600;
+}
+
+.formulario input,
+.formulario button {
+    width: 100%;
+}
+
+.formulario button {
+    margin-top: 1.5rem;
+}
+
+/* Contenedor para tablas anchas */
+.tabla-responsive {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--superficie);
+}
+
+th,
+td {
+    padding: 0.65rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--borde);
+}
+
+th {
+    color: var(--acero);
+    background-color: var(--azul-claro);
+}
+
+/* ---------- Footer ---------- */
+footer {
+    padding: 0.75rem 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #d6e0e6;
+    background-color: var(--acero);
+}
+
+footer p {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Tablet y escritorio (desde 768px)
+   ========================================================================== */
+@media (min-width: 48em) {
+    header {
+        padding: 0.5rem 2rem;
+    }
+
+    header .marca img {
+        height: 56px;
+    }
+
+    main {
+        padding: 2rem;
+    }
+
+    /* Menú y contenido lado a lado */
+    .contenedor-principal {
+        flex-direction: row;
+    }
+
+    /* Menú como columna lateral */
+    nav {
+        flex: 0 0 16rem;
+        order: 2;
+        border-bottom: 0;
+        border-left: 1px solid var(--borde);
+    }
+
+    nav h2 {
+        padding: 1.5rem 1.25rem 0.75rem;
+        font-size: 1.35rem;
+    }
+
+    nav ul {
+        flex-direction: column;
+        overflow: visible;
+        padding: 0.25rem 0.75rem 1rem;
+    }
+
+    nav a {
+        border-bottom: 0;
+        border-left: 3px solid transparent;
+    }
+
+    nav a.activo,
+    nav a[aria-current="page"] {
+        border-left-color: var(--verde);
+    }
+}
+
+/* ---------- Respeta a quien desactiva las animaciones ---------- */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+}
